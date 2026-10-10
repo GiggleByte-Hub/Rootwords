@@ -2,8 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Rootwords — Sketch, Spell, Sustain</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#1f4d2c">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rootwords">
 <style>
 :root {
   --green-dark: #1f4d2c;
@@ -262,12 +270,10 @@ a.btn-link.primary { background: var(--green); color: #fff; border-color: var(--
         </div>
       </div>
       <div class="btn-row">
-        <!-- TODO: replace "#" with your real donation link (e.g. Ko-fi, Open Collective, PayPal.me, Patreon) before deploying -->
-        <a class="primary btn-link" href="#" id="donate-onetime">💚 One-time donation</a>
-        <a class="btn-link" href="#" id="donate-monthly">🔁 Become a monthly supporter</a>
+        <a class="primary btn-link" href="https://ko-fi.com/gigglebyte1010" target="_blank" rel="noopener" id="donate-onetime">💚 One-time donation</a>
+        <a class="btn-link" href="https://ko-fi.com/gigglebyte1010/tiers" target="_blank" rel="noopener" id="donate-monthly">🔁 Become a monthly supporter</a>
       </div>
-      <p class="hint">(Site owner: swap the links above for your real donation page — Ko-fi, Open Collective, and Patreon are common free options for open-source projects like this one.)</p>
-      <!-- TODO: point this at your actual repo URL once you've created it -->
+      <p class="hint">Donations are processed securely by Ko-fi — you'll leave this page briefly to complete payment.</p>
       <p class="hint"><a href="https://github.com/GiggleByte-Hub/Rootwords" target="_blank" rel="noopener" id="donate-github">⭐ View the source on GitHub</a> — the code is free for anyone to read, fork, or improve.</p>
     </div>
   </section>
@@ -1109,6 +1115,12 @@ document.getElementById('btn-reset-stats').addEventListener('click', () => {
 });
 
 startLevel(0);
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
