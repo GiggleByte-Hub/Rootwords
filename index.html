@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rootwords — Sketch, Spell, Sustain</title>
+<style>
+:root {
+  --green-dark: #1f4d2c;
+  --green: #2e7d32;
+  --green-light: #e8f3e3;
+  --amber: #c9a227;
+  --cream: #faf7f0;
+  --ink: #26301f;
+  --border: #cdbf9a;
+  --red: #b3261e;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+}
+
+#topnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--green-dark);
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.brand { font-size: 1.3rem; font-weight: 700; }
+
+#topnav nav { display: flex; gap: 0.4rem; }
+
+.nav-tab {
+  background: transparent;
+  border: none;
+  color: #e8f3e3;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.nav-tab.active { background: var(--amber); color: #2a2200; font-weight: 600; }
+.nav-tab:hover { background: rgba(255,255,255,0.15); }
+
+main { max-width: 900px; margin: 1.25rem auto; padding: 0 1rem 3rem; }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.panel-block {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+#play-hud {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: var(--green-light);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+#play-hud .stat { display: flex; flex-direction: column; min-width: 90px; }
+#play-hud .label { font-size: 0.72rem; text-transform: uppercase; color: #5a6b4e; letter-spacing: 0.03em; }
+#play-hud span:last-child { font-weight: 700; font-size: 1.05rem; }
+
+.stage-head h3 { margin: 0 0 0.25rem; }
+.hint { color: #5a6b4e; font-size: 0.92rem; }
+.source { color: #7a6b40; font-size: 0.85rem; font-style: italic; }
+
+#sketch-canvas {
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+  background: #fffef9;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  display: block;
+  margin: 0.75rem 0;
+  touch-action: none;
+}
+
+.btn-row { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.75rem; }
+.btn-col { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.75rem; max-width: 460px; }
+
+button {
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.55rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+}
+button:hover:not(:disabled) { background: var(--green-light); }
+button:disabled { opacity: 0.55; cursor: default; }
+
+button.primary { background: var(--green); color: #fff; border-color: var(--green-dark); font-weight: 600; }
+button.primary:hover:not(:disabled) { background: var(--green-dark); }
+button.ghost { background: transparent; border-style: dashed; }
+
+a.btn-link {
+  display: inline-block;
+  text-decoration: none;
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--ink);
+}
+a.btn-link.primary { background: var(--green); color: #fff; border-color: var(--green-dark); font-weight: 600; }
+
+.option-btn { text-align: left; }
+.option-btn.correct { background: #d7edd0; border-color: var(--green); font-weight: 600; }
+.option-btn.wrong { background: #f6d9d7; border-color: var(--red); }
+
+.quiz-question { font-size: 1.05rem; font-weight: 600; margin: 0.5rem 0; }
+
+.tile-row { display: flex; gap: 0.4rem; flex-wrap: wrap; min-height: 54px; align-items: center; margin: 0.4rem 0; }
+
+.tile {
+  width: 46px; height: 46px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(180deg, #fffbe9, #f3e6b8);
+  border: 2px solid #b89b3a;
+  border-radius: 8px;
+  font-weight: 700; font-size: 1.15rem;
+  position: relative;
+  color: #3a2d05;
+  padding: 0;
+}
+.tile-letter { display: block; }
+.tile-pts { position: absolute; bottom: 2px; right: 5px; font-size: 0.55rem; font-weight: 400; }
+
+.tile.slot.empty { background: #f1ede1; border-style: dashed; color: transparent; }
+.tile.slot.filled:hover { background: #ffe9c2; }
+
+.card-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.75rem; }
+
+.material-card {
+  flex: 1 1 160px;
+  min-height: 70px;
+  padding: 0.9rem;
+  text-align: left;
+  font-weight: 600;
+  border-radius: 12px;
+}
+.material-card.chosen { background: var(--green-light); border-color: var(--green); }
+
+.eco-meter { height: 10px; background: #eee; border-radius: 6px; overflow: hidden; margin: 0.5rem 0; }
+.eco-fill { height: 100%; background: linear-gradient(90deg, var(--amber), var(--green)); }
+
+#modal {
+  position: fixed; inset: 0;
+  background: rgba(20, 30, 15, 0.55);
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+  z-index: 50;
+}
+#modal.hidden { display: none; }
+.modal-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  max-width: 480px;
+  width: 100%;
+}
+.modal-place { font-weight: 600; color: var(--green-dark); }
+.fact { line-height: 1.4; }
+
+.stats-grid, #stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin: 0.75rem 0; }
+.stat-card { background: var(--green-light); border-radius: 12px; padding: 0.9rem; text-align: center; }
+.stat-num { font-size: 1.4rem; font-weight: 700; color: var(--green-dark); }
+.stat-label { font-size: 0.78rem; color: #5a6b4e; }
+
+#badges-grid { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+.badge-card { background: #fff6da; border: 1px solid var(--amber); border-radius: 12px; padding: 0.75rem 1rem; text-align: center; min-width: 120px; }
+.badge-icon { font-size: 1.6rem; }
+
+.donate-tiers { display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 0.75rem 0; }
+.tier-card { flex: 1 1 120px; background: var(--green-light); border-radius: 12px; padding: 0.9rem; text-align: center; }
+.tier-amount { font-size: 1.3rem; font-weight: 700; color: var(--green-dark); }
+.tier-name { font-size: 0.85rem; }
+
+.sources-list { font-size: 0.92rem; line-height: 1.5; }
+
+@media (max-width: 560px) {
+  #topnav { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+<header id="topnav">
+  <div class="brand">🌱 Rootwords</div>
+  <nav>
+    <button class="nav-tab active" data-tab="play">Play</button>
+    <button class="nav-tab" data-tab="stats">Stats</button>
+    <button class="nav-tab" data-tab="donate">Donate</button>
+    <button class="nav-tab" data-tab="about">About</button>
+  </nav>
+</header>
+
+<main>
+  <section id="tab-play" class="tab-panel active">
+    <div id="play-hud">
+      <div class="stat"><span class="label">Level</span><span id="hud-level">1 / 4</span></div>
+      <div class="stat"><span class="label">Nature item</span><span id="hud-item">—</span></div>
+      <div class="stat"><span class="label">Level score</span><span id="hud-level-score">0</span></div>
+      <div class="stat"><span class="label">Total score</span><span id="hud-total-score">0</span></div>
+    </div>
+    <div id="stage-container" class="panel-block"></div>
+  </section>
+
+  <section id="tab-stats" class="tab-panel">
+    <div class="panel-block">
+      <h2>Your progress</h2>
+      <div id="stats-grid"></div>
+      <h3>Badges</h3>
+      <div id="badges-grid"></div>
+      <div class="btn-row">
+        <button id="btn-reset-stats">↺ Reset progress</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-donate" class="tab-panel">
+    <div class="panel-block donate-block">
+      <h2>Support Rootwords 🌱</h2>
+      <p>Rootwords is a <b>free, open-source</b> game, built in the open the same way <a href="https://woogles.io" target="_blank" rel="noopener">Woogles.io</a> runs its word-game platform: volunteer-made, donation-funded, and kept free for every learner. The game itself runs entirely in your browser — no gameplay server to pay for — but hosting the site, maintaining it, and building new levels all take real time and resources.</p>
+      <p>If Rootwords helped you (or a classroom, or a kid you know) learn a little geometry, a little spelling, and a little more care for the planet, consider chipping in:</p>
+      <div class="donate-tiers">
+        <div class="tier-card">
+          <div class="tier-amount">$3</div>
+          <div class="tier-name">Plant a seed</div>
+        </div>
+        <div class="tier-card">
+          <div class="tier-amount">$10</div>
+          <div class="tier-name">Water the roots</div>
+        </div>
+        <div class="tier-card">
+          <div class="tier-amount">$25</div>
+          <div class="tier-name">Grow the forest</div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <!-- TODO: replace "#" with your real donation link (e.g. Ko-fi, Open Collective, PayPal.me, Patreon) before deploying -->
+        <a class="primary btn-link" href="#" id="donate-onetime">💚 One-time donation</a>
+        <a class="btn-link" href="#" id="donate-monthly">🔁 Become a monthly supporter</a>
+      </div>
+      <p class="hint">(Site owner: swap the links above for your real donation page — Ko-fi, Open Collective, and Patreon are common free options for open-source projects like this one.)</p>
+      <!-- TODO: point this at your actual repo URL once you've created it -->
+      <p class="hint"><a href="https://github.com/GiggleByte-Hub/Rootwords" target="_blank" rel="noopener" id="donate-github">⭐ View the source on GitHub</a> — the code is free for anyone to read, fork, or improve.</p>
+    </div>
+  </section>
+
+  <section id="tab-about" class="tab-panel">
+    <div class="panel-block">
+      <h2>How to play</h2>
+      <p>Each level is built around one pattern found in nature. You'll go through four short stages:</p>
+      <ol>
+        <li><b>🎨 Sketch</b> — trace the pattern's outline on a canvas.</li>
+        <li><b>📐 Geometry</b> — answer two math/geometry questions about the pattern you just traced.</li>
+        <li><b>🔤 Spell</b> — drag letter tiles (Scrabble-style, with point values) to spell related vocabulary.</li>
+        <li><b>♻️ Choose sustainably</b> — pick the more sustainable material for an everyday item, and see the real trade-offs.</li>
+      </ol>
+      <h2>Sources &amp; honesty notes</h2>
+      <ul class="sources-list">
+        <li>Honeycomb Conjecture / Theorem, proved by Thomas Hales (1999) — summarized via ResearchGate and arXiv.</li>
+        <li>Leaf venation patterns — Biology Insights; Digital Atlas of Ancient Life.</li>
+        <li>Nautilus shell logarithmic spiral &amp; the golden-ratio myth — Science Friday ("Myth or math? Is the nautilus shell's golden ratio real?").</li>
+        <li>Spider orb-web radial geometry — European Arachnology Society; Aptive Pest Control.</li>
+        <li>Plastic / plastic bag decomposition timelines — chariotenergy.com; decodingbiosphere.com.</li>
+        <li>Beeswax wrap vs. plastic wrap — UC ANR Preservation Notes; The Green Collective.</li>
+        <li>Stainless-steel vs. single-use plastic bottles — myequa.com; icobottle.com.</li>
+        <li>Hemp vs. cotton vs. polyester water use &amp; biodegradability — hemp.com; ecothes.com; Slate.</li>
+      </ul>
+      <p class="hint"><b>Honesty note:</b> the sketch shapes are stylized teaching guides, not botanically exact drawings. Material "sustainability scores" are simplified teaching ranks based on the sources above, not precise lifecycle-assessment numbers — real sustainability trade-offs depend on how often something is reused, how it's disposed of, and local conditions.</p>
+      <h2>Accessibility</h2>
+      <ul class="sources-list">
+        <li>Every color cue is paired with an icon, label, or pattern (never color alone).</li>
+        <li>The sketch stage has a one-click "Skip (accessibility)" option that awards a fair baseline score — mouse/touch drawing is not required to progress.</li>
+        <li>All interactive elements are real buttons, reachable and triggerable by keyboard (Tab + Enter/Space).</li>
+        <li>Feedback text uses <code>aria-live</code> so screen readers announce results as they appear.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<div id="modal" class="hidden" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <h2 id="modal-title">Level</h2>
+    <p id="modal-place" class="modal-place"></p>
+    <p id="modal-fact" class="fact"></p>
+    <p id="modal-source" class="source"></p>
+    <div id="modal-extra"></div>
+    <div class="btn-row">
+      <button id="modal-go" class="primary">Start</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SCRABBLE_VALUES = {A:1,B:3,C:3,D:2,E:1,F:4,G:2,H:4,I:1,J:8,K:5,L:1,M:3,N:1,O:1,P:3,Q:10,R:1,S:1,T:1,U:1,V:4,W:4,X:8,Y:4,Z:10,SP:0};
+
+const LEVELS = [
+  {
+    id: 'leaf', emoji: '🍃', name: 'The Leaf', place: 'Any broadleaf tree',
+    sketchGuide: 'leaf',
+    intro: {
+      fact: 'Most broadleaf trees grow "pinnate" veins — one central midrib with side veins branching off like a feather. Engineers now copy this pattern to design materials that resist cracking.',
+      source: 'Leaf venation patterns — Biology Insights; Digital Atlas of Ancient Life'
+    },
+    geometry: [
+      {
+        q: 'A leaf whose veins branch off one central line, like a feather, has ___ venation.',
+        options: ['Parallel venation', 'Pinnate venation', 'Radial venation', 'Dichotomous venation'],
+        correct: 1,
+        explain: 'Pinnate venation is the feather-like pattern with one central midrib and side veins branching off it — common in leaves like oak, rose, and mango.',
+        source: 'Biology Insights — "What Is Leaf Venation?"'
+      },
+      {
+        q: 'Draw a line down the midrib of this simple leaf. How many lines of symmetry does it have?',
+        options: ['0', '1', '2', '4'],
+        correct: 1,
+        explain: 'The two halves of the leaf mirror each other across the midrib — exactly one line of symmetry, the same kind of symmetry your own face has.',
+        source: 'Basic geometry of bilateral symmetry'
+      }
+    ],
+    words: [
+      { word: 'LEAF', clue: '🍃 A flat green part of a plant that catches sunlight.' },
+      { word: 'VEIN', clue: '🩸 A thin line carrying water through a leaf (or blood through you).' }
+    ],
+    material: {
+      prompt: 'You are packing groceries. Which bag is the more sustainable everyday choice?',
+      options: [
+        { label: 'Single-use plastic bag', rank: 1, fact: 'A thin plastic bag can take 10–20 years to break down in open sun and air — and 500–1,000+ years in a landfill or ocean, where there is little light or oxygen to help it degrade.', source: 'Plastic decomposition-time research summaries (chariotenergy.com; decodingbiosphere.com)' },
+        { label: 'Paper bag (used once)', rank: 2, fact: 'Paper biodegrades in weeks to months, but printing a fresh paper bag for every trip still costs trees, water, and energy — reusing something always beats a single-use item, even a "biodegradable" one.', source: 'General lifecycle principle: reuse > recycle > single-use' },
+        { label: 'Reusable cotton tote (used 100+ times)', rank: 3, fact: 'A sturdy tote costs more resources to make than one plastic bag — but you use it hundreds of times instead of throwing it away once, so its footprint per trip ends up far lower.', source: 'General lifecycle principle: reuse > recycle > single-use' }
+      ]
+    }
+  },
+  {
+    id: 'honeycomb', emoji: '🐝', name: 'The Honeycomb', place: 'A beehive',
+    sketchGuide: 'hexagon',
+    intro: {
+      fact: 'Bees build honeycomb out of hexagons. In 1999, mathematician Thomas Hales proved what beekeepers long suspected: hexagons divide a flat surface into equal cells using less total wall material than any other repeating shape — even circles.',
+      source: 'The Honeycomb Conjecture, proved by Thomas Hales (1999) — summarized via ResearchGate / arXiv'
+    },
+    geometry: [
+      {
+        q: 'How many straight sides does each honeycomb cell have?',
+        options: ['4', '5', '6', '8'],
+        correct: 2,
+        explain: 'Every honeycomb cell is a hexagon — six equal sides meeting at six 120° angles — which lets the cells pack together edge-to-edge with no wasted space.',
+        source: 'Honeycomb geometry overviews (Bee Inspired Goods; Blythewood Bee Company)'
+      },
+      {
+        q: 'The proven idea that hexagons tile a flat surface using the least total wall length for a given area is called the ___.',
+        options: ['Pythagorean Theorem', 'Honeycomb Conjecture', 'Golden Ratio', 'Fibonacci Rule'],
+        correct: 1,
+        explain: 'The Honeycomb Conjecture (now the Honeycomb Theorem) says hexagons enclose equal-area cells with less total perimeter — i.e. less wax — than any other shape. Bees save building material by using it.',
+        source: 'Thomas Hales, 1999 proof — summarized via ResearchGate / arXiv'
+      }
+    ],
+    words: [
+      { word: 'HEXAGON', clue: '⬡ A shape with six straight sides, like a honeycomb cell.' },
+      { word: 'WAX', clue: '🕯 The soft material bees build their comb from.' }
+    ],
+    material: {
+      prompt: 'You want to keep a sandwich fresh. Which wrap is the more sustainable choice?',
+      options: [
+        { label: 'Single-use plastic wrap', rank: 1, fact: 'Plastic cling wrap is used once and thrown away — like most single-use plastics, it can persist in landfills and oceans for hundreds of years.', source: 'Beeswax-wrap sustainability comparisons (The Green Collective; UC ANR)' },
+        { label: 'Aluminum foil', rank: 2, fact: 'Foil is technically recyclable, but making new aluminum is very energy-intensive, and food-soiled foil usually cannot actually be recycled.', source: 'General packaging lifecycle principle' },
+        { label: 'Beeswax wrap (reused ~1 year, then composted)', rank: 3, fact: 'A beeswax wrap — cotton cloth coated in beeswax, resin, and oil — can be washed and reused for about a year, then composted safely, replacing hundreds of sheets of single-use wrap.', source: 'UC ANR Preservation Notes; The Green Collective' }
+      ]
+    }
+  },
+  {
+    id: 'shell', emoji: '🐚', name: 'The Seashell', place: 'A nautilus shell',
+    sketchGuide: 'spiral',
+    intro: {
+      fact: "A nautilus shell grows in a logarithmic spiral — each new chamber is the same shape as the last, just scaled up — so the animal always lives in the newest, biggest room without its shell ever changing overall shape.",
+      source: 'Logarithmic spiral growth in nautilus shells — Science Friday; World Scientific'
+    },
+    geometry: [
+      {
+        q: "The nautilus shell's spiral — where each turn keeps the same shape, just bigger — is called a ___ spiral.",
+        options: ['Random spiral', 'Square spiral', 'Logarithmic spiral', 'Straight spiral'],
+        correct: 2,
+        explain: 'A logarithmic spiral keeps the exact same shape as it grows outward, which is how a nautilus keeps living in one continuously-growing shell.',
+        source: "Science Friday — \"Myth or math? Is the nautilus shell's golden ratio real?\""
+      },
+      {
+        q: 'True or false: the nautilus shell spiral exactly matches the famous Fibonacci sequence / golden ratio.',
+        options: ['True — it is a perfect golden spiral', 'False — it is logarithmic, but not a true golden/Fibonacci spiral', 'True, but only when the nautilus is young', 'False — nautilus shells are not spirals at all'],
+        correct: 1,
+        explain: 'This is a popular myth! A nautilus grows by a ratio of about 1.3–1.4 per turn, while a true golden spiral grows by about 1.618 per turn. Both are logarithmic spirals, but they are not the same curve.',
+        source: 'Science Friday; nautilus growth-ratio research summaries (ResearchGate)'
+      }
+    ],
+    words: [
+      { word: 'SHELL', clue: '🐚 The hard spiral home of a nautilus.' },
+      { word: 'SPIRAL', clue: '🌀 A curved shape that winds outward from a center point.' }
+    ],
+    material: {
+      prompt: 'You drink water every day. Which bottle is the more sustainable choice over a year?',
+      options: [
+        { label: 'A new single-use plastic bottle every day', rank: 1, fact: 'A single-use plastic bottle that is never recycled can sit in a landfill for 700+ years before it even starts breaking down.', source: 'Stainless-steel vs. plastic bottle lifecycle summaries (myequa.com; icobottle.com)' },
+        { label: 'A reusable plastic bottle', rank: 2, fact: 'Reusing a plastic bottle is far better than single-use, but plastic degrades a little each wash cycle and eventually still becomes waste.', source: 'General reuse lifecycle principle' },
+        { label: 'A reusable stainless-steel bottle', rank: 3, fact: 'One steel bottle, used daily, pays back its higher manufacturing footprint in about a month — and over a year it replaces roughly 730 single-use bottles while staying 100% and endlessly recyclable.', source: 'Bottle lifecycle-analysis summaries (myequa.com; icobottle.com)' }
+      ]
+    }
+  },
+  {
+    id: 'web', emoji: '🕸', name: 'The Spider Web', place: "An orb-weaver's web",
+    sketchGuide: 'web',
+    intro: {
+      fact: 'An orb-weaver spider spins 20–35 straight "radial" threads out from a central hub, like spokes on a wheel, then winds a sticky spiral on top — strong enough to stop flying prey, stretchy enough not to snap.',
+      source: 'Spider orb-web geometry — European Arachnology Society; Aptive Pest Control'
+    },
+    geometry: [
+      {
+        q: 'Threads that spread out evenly from one central point, like wheel spokes, show ___ symmetry.',
+        options: ['Bilateral symmetry', 'Radial symmetry', 'No symmetry', 'Linear symmetry'],
+        correct: 1,
+        explain: 'Radial symmetry means a pattern repeats evenly all the way around a central point — the same symmetry you see in a spider web, a starfish, or a daisy.',
+        source: 'Spider web geometry overviews'
+      },
+      {
+        q: 'About how many radial "spoke" threads does a typical orb web have?',
+        options: ['2', '5', '20–35', '100+'],
+        correct: 2,
+        explain: 'Orb-weavers typically spin 20–35 radial threads spaced about 10–15° apart, then spiral sticky capture silk on top of them.',
+        source: 'European Arachnology Society orb-web studies'
+      }
+    ],
+    words: [
+      { word: 'SPIDER', clue: '🕷 The eight-legged engineer that spins a web.' },
+      { word: 'RADIAL', clue: '☀ Spreading out evenly from a center point, like spokes.' }
+    ],
+    material: {
+      prompt: "You're buying a plain t-shirt. Which fabric is the more sustainable choice?",
+      options: [
+        { label: 'Polyester', rank: 1, fact: "Making polyester uses relatively little water, but it is a plastic — it won't biodegrade for hundreds of years, and every wash sheds tiny microplastic fibers into rivers and oceans.", source: 'Hemp vs. cotton vs. polyester comparisons (hemp.com; ecothes.com)' },
+        { label: 'Conventional cotton', rank: 2, fact: 'Cotton is natural and biodegradable, but growing one kilogram of cotton fiber can take around 10,000 liters of irrigated water.', source: 'Hemp vs. cotton water-use comparisons (Slate; hemp.com)' },
+        { label: 'Hemp', rank: 3, fact: 'Hemp needs roughly half the water cotton does, is usually rain-fed rather than irrigated, and pure hemp fabric breaks down in weeks to months in compost, returning nutrients to the soil.', source: 'Hemp environmental lifecycle comparisons (hemp.com; ecothes.com)' }
+      ]
+    }
+  }
+];
+</script>
+<script>
+const GUIDE_BUILDERS = {
+  leaf(w, h) {
+    const outline = [
+      [0.50, 0.06], [0.66, 0.16], [0.80, 0.30], [0.86, 0.50],
+      [0.80, 0.70], [0.66, 0.84], [0.50, 0.95],
+      [0.34, 0.84], [0.20, 0.70], [0.14, 0.50],
+      [0.20, 0.30], [0.34, 0.16], [0.50, 0.06]
+    ];
+    const midrib = [[0.50, 0.10], [0.50, 0.90]];
+    return [outline, midrib].map(poly => poly.map(([x, y]) => ({ x: x * w, y: y * h })));
+  },
+  hexagon(w, h) {
+    const pts = [[0.5, 0.12], [0.82, 0.31], [0.82, 0.69], [0.5, 0.88], [0.18, 0.69], [0.18, 0.31], [0.5, 0.12]];
+    return [pts.map(([x, y]) => ({ x: x * w, y: y * h }))];
+  },
+  spiral(w, h) {
+    const pts = [];
+    const cx = 0.55 * w, cy = 0.55 * h;
+    const turns = 3.2;
+    for (let i = 0; i <= 140; i++) {
+      const t = (i / 140) * turns * Math.PI * 2;
+      const r = 0.02 * Math.min(w, h) * Math.exp(0.18 * t);
+      pts.push({ x: cx - r * Math.cos(t), y: cy - r * Math.sin(t) });
+    }
+    return [pts];
+  },
+  web(w, h) {
+    const cx = w / 2, cy = h / 2;
+    const maxR = Math.min(w, h) * 0.42;
+    const spokes = 8;
+    const lines = [];
+    for (let i = 0; i < spokes; i++) {
+      const a = (i / spokes) * Math.PI * 2;
+      lines.push([{ x: cx, y: cy }, { x: cx + maxR * Math.cos(a), y: cy + maxR * Math.sin(a) }]);
+    }
+    [0.35, 0.65, 1].forEach(frac => {
+      const ring = [];
+      for (let i = 0; i <= spokes; i++) {
+        const a = (i / spokes) * Math.PI * 2;
+        ring.push({ x: cx + maxR * frac * Math.cos(a), y: cy + maxR * frac * Math.sin(a) });
+      }
+      lines.push(ring);
+    });
+    return lines;
+  }
+};
+
+function sampleGuide(polylines, spacing) {
+  const samples = [];
+  polylines.forEach(poly => {
+    for (let i = 0; i < poly.length - 1; i++) {
+      const a = poly[i], b = poly[i + 1];
+      const segLen = Math.hypot(b.x - a.x, b.y - a.y);
+      const steps = Math.max(1, Math.round(segLen / spacing));
+      for (let s = 0; s < steps; s++) {
+        const t = s / steps;
+        samples.push({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+      }
+    }
+  });
+  return samples;
+}
+
+function createSketchStage(container, guideName, onDone) {
+  container.innerHTML = `
+    <div class="stage-head">
+      <h3>🎨 Sketch it</h3>
+      <p class="hint">Trace over the dotted guide with your mouse or finger. Not an artist? That's fine — just follow the lines as closely as you can.</p>
+    </div>
+    <canvas id="sketch-canvas" width="520" height="360" aria-label="Sketch canvas: trace the dotted nature pattern" role="img" tabindex="0"></canvas>
+    <div class="btn-row">
+      <button id="sketch-clear">↺ Clear my lines</button>
+      <button id="sketch-skip" class="ghost">Skip sketch (accessibility)</button>
+      <button id="sketch-check" class="primary">✓ Check my sketch</button>
+    </div>
+    <p id="sketch-result" class="hint" aria-live="polite"></p>
+  `;
+
+  const canvas = container.querySelector('#sketch-canvas');
+  const ctx = canvas.getContext('2d');
+  const guide = GUIDE_BUILDERS[guideName](canvas.width, canvas.height);
+  const guideSamples = sampleGuide(guide, 6);
+  let userStrokes = [];
+  let currentStroke = null;
+  let drawing = false;
+
+  function render() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.setLineDash([5, 6]);
+    ctx.strokeStyle = '#9c8a6b';
+    ctx.lineWidth = 2;
+    guide.forEach(poly => {
+      ctx.beginPath();
+      poly.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+      ctx.stroke();
+    });
+    ctx.restore();
+
+    ctx.strokeStyle = '#2e7d32';
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    userStrokes.forEach(stroke => {
+      ctx.beginPath();
+      stroke.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+      ctx.stroke();
+    });
+  }
+
+  function pos(evt) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height;
+    const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+    const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+  }
+
+  function start(evt) {
+    evt.preventDefault();
+    drawing = true;
+    currentStroke = [pos(evt)];
+    userStrokes.push(currentStroke);
+  }
+  function move(evt) {
+    if (!drawing) return;
+    evt.preventDefault();
+    currentStroke.push(pos(evt));
+    render();
+  }
+  function end() { drawing = false; currentStroke = null; }
+
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', end);
+  canvas.addEventListener('touchstart', start, { passive: false });
+  canvas.addEventListener('touchmove', move, { passive: false });
+  canvas.addEventListener('touchend', end);
+
+  render();
+
+  container.querySelector('#sketch-clear').addEventListener('click', () => {
+    userStrokes = [];
+    render();
+  });
+
+  function scoreCoverage() {
+    const userPts = userStrokes.flat();
+    if (userPts.length === 0) return 0;
+    const tolerance = 20;
+    let covered = 0;
+    guideSamples.forEach(g => {
+      const hit = userPts.some(p => Math.hypot(p.x - g.x, p.y - g.y) < tolerance);
+      if (hit) covered++;
+    });
+    return Math.round((covered / guideSamples.length) * 100);
+  }
+
+  function lockButtons() {
+    container.querySelector('#sketch-check').disabled = true;
+    container.querySelector('#sketch-skip').disabled = true;
+  }
+
+  container.querySelector('#sketch-check').addEventListener('click', () => {
+    const score = scoreCoverage();
+    const msg = score >= 70 ? `🌟 Sketch score: ${score}% — beautifully traced!`
+      : score >= 40 ? `👍 Sketch score: ${score}% — good start, the shape is taking form.`
+      : `✏️ Sketch score: ${score}% — try tracing a bit more of the dotted line, or move on whenever you're ready.`;
+    container.querySelector('#sketch-result').textContent = msg;
+    lockButtons();
+    onDone(score);
+  });
+
+  container.querySelector('#sketch-skip').addEventListener('click', () => {
+    container.querySelector('#sketch-result').textContent = 'Sketch skipped — no penalty, moving on.';
+    lockButtons();
+    onDone(60);
+  });
+}
+</script>
+<script>
+function createGeometryStage(container, questions, onDone) {
+  let qIndex = 0;
+  let firstTryCorrectCount = 0;
+  let triedOnceWrong = false;
+
+  function renderQuestion() {
+    const q = questions[qIndex];
+    container.innerHTML = `
+      <div class="stage-head">
+        <h3>📐 Geometry in nature (${qIndex + 1} / ${questions.length})</h3>
+        <p class="hint">Math question — pick the best answer.</p>
+      </div>
+      <p class="quiz-question">${q.q}</p>
+      <div id="quiz-options" class="btn-col"></div>
+      <p id="quiz-feedback" class="hint" aria-live="polite"></p>
+    `;
+    const optsWrap = container.querySelector('#quiz-options');
+    triedOnceWrong = false;
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = opt;
+      btn.addEventListener('click', () => selectOption(i, q, btn, optsWrap));
+      optsWrap.appendChild(btn);
+    });
+  }
+
+  function selectOption(i, q, btn, optsWrap) {
+    const buttons = Array.from(optsWrap.children);
+    if (i === q.correct) {
+      buttons.forEach(b => b.disabled = true);
+      btn.classList.add('correct');
+      if (!triedOnceWrong) firstTryCorrectCount++;
+      container.querySelector('#quiz-feedback').innerHTML =
+        `✅ ${q.explain}<br><span class="source">Source: ${q.source}</span>
+         <div class="btn-row"><button class="primary" id="quiz-next">Continue ▶</button></div>`;
+      container.querySelector('#quiz-next').addEventListener('click', nextQuestion);
+    } else {
+      triedOnceWrong = true;
+      btn.classList.add('wrong');
+      btn.disabled = true;
+      container.querySelector('#quiz-feedback').textContent = '❌ Not quite — try another option.';
+    }
+  }
+
+  function nextQuestion() {
+    qIndex++;
+    if (qIndex < questions.length) {
+      renderQuestion();
+    } else {
+      const accuracy = Math.round((firstTryCorrectCount / questions.length) * 100);
+      onDone({ accuracy, total: questions.length, firstTry: firstTryCorrectCount });
+    }
+  }
+
+  renderQuestion();
+}
+</script>
+<script>
+function shuffleLetters(word) {
+  const letters = word.split('');
+  for (let i = letters.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [letters[i], letters[j]] = [letters[j], letters[i]];
+  }
+  return letters;
+}
+
+function createSpellingStage(container, words, onDone) {
+  let wIndex = 0;
+  let totalScore = 0;
+  let firstTryCount = 0;
+
+  function renderWord() {
+    const entry = words[wIndex];
+    const letters = shuffleLetters(entry.word);
+    const slots = new Array(entry.word.length).fill(null);
+    let hintsUsed = 0;
+    let wrongAttempt = false;
+
+    container.innerHTML = `
+      <div class="stage-head">
+        <h3>🔤 Spell it (${wIndex + 1} / ${words.length})</h3>
+        <p class="hint">${entry.clue}</p>
+      </div>
+      <div id="word-slots" class="tile-row"></div>
+      <div id="tile-tray" class="tile-row"></div>
+      <div class="btn-row">
+        <button id="spell-hint" class="ghost">💡 Hint (−3 pts)</button>
+        <button id="spell-clear">↺ Clear</button>
+        <button id="spell-check" class="primary">✓ Check spelling</button>
+      </div>
+      <p id="spell-feedback" class="hint" aria-live="polite"></p>
+    `;
+
+    const slotsEl = container.querySelector('#word-slots');
+    const trayEl = container.querySelector('#tile-tray');
+
+    function tileButton(letter, tileId) {
+      const b = document.createElement('button');
+      b.className = 'tile';
+      b.dataset.letter = letter;
+      b.dataset.tileId = tileId;
+      b.innerHTML = `<span class="tile-letter">${letter}</span><span class="tile-pts">${SCRABBLE_VALUES[letter] ?? 1}</span>`;
+      return b;
+    }
+
+    function renderSlots() {
+      slotsEl.innerHTML = '';
+      slots.forEach((val, i) => {
+        const slot = document.createElement('button');
+        slot.className = 'tile slot' + (val ? ' filled' : ' empty');
+        slot.textContent = val ? val.letter : '';
+        if (val) {
+          slot.addEventListener('click', () => {
+            trayLetters.push(val);
+            slots[i] = null;
+            renderSlots();
+            renderTray();
+          });
+        }
+        slotsEl.appendChild(slot);
+      });
+    }
+
+    let trayLetters = letters.map((l, i) => ({ letter: l, id: i }));
+
+    function renderTray() {
+      trayEl.innerHTML = '';
+      trayLetters.forEach(t => {
+        const b = tileButton(t.letter, t.id);
+        b.addEventListener('click', () => {
+          const emptyIndex = slots.findIndex(s => s === null);
+          if (emptyIndex === -1) return;
+          slots[emptyIndex] = t;
+          trayLetters = trayLetters.filter(x => x.id !== t.id);
+          renderSlots();
+          renderTray();
+        });
+        trayEl.appendChild(b);
+      });
+    }
+
+    renderSlots();
+    renderTray();
+
+    container.querySelector('#spell-clear').addEventListener('click', () => {
+      trayLetters = letters.map((l, i) => ({ letter: l, id: i }));
+      slots.fill(null);
+      renderSlots();
+      renderTray();
+    });
+
+    container.querySelector('#spell-hint').addEventListener('click', () => {
+      const idx = slots.findIndex(s => s === null);
+      if (idx === -1) return;
+      const correctLetter = entry.word[idx];
+      const tileIdx = trayLetters.findIndex(t => t.letter === correctLetter);
+      if (tileIdx === -1) return;
+      slots[idx] = trayLetters[tileIdx];
+      trayLetters.splice(tileIdx, 1);
+      hintsUsed++;
+      renderSlots();
+      renderTray();
+    });
+
+    container.querySelector('#spell-check').addEventListener('click', () => {
+      if (slots.some(s => s === null)) {
+        container.querySelector('#spell-feedback').textContent = 'Fill every letter slot first.';
+        return;
+      }
+      const attempt = slots.map(s => s.letter).join('');
+      const feedback = container.querySelector('#spell-feedback');
+      if (attempt === entry.word) {
+        const pts = Math.max(2, 10 - hintsUsed * 3);
+        totalScore += pts;
+        if (hintsUsed === 0 && !wrongAttempt) firstTryCount++;
+        feedback.innerHTML = `✅ Correct — "${entry.word}"! +${pts} points <div class="btn-row"><button class="primary" id="spell-next">Continue ▶</button></div>`;
+        container.querySelectorAll('.tile').forEach(t => t.disabled = true);
+        container.querySelector('#spell-hint').disabled = true;
+        container.querySelector('#spell-check').disabled = true;
+        container.querySelector('#spell-next').addEventListener('click', nextWord);
+      } else {
+        wrongAttempt = true;
+        feedback.textContent = '❌ Not quite — rearrange the tiles and try again.';
+      }
+    });
+  }
+
+  function nextWord() {
+    wIndex++;
+    if (wIndex < words.length) {
+      renderWord();
+    } else {
+      const accuracy = Math.round((firstTryCount / words.length) * 100);
+      onDone({ score: totalScore, accuracy, total: words.length, firstTry: firstTryCount });
+    }
+  }
+
+  renderWord();
+}
+</script>
+<script>
+function createMaterialsStage(container, material, onDone) {
+  container.innerHTML = `
+    <div class="stage-head">
+      <h3>♻️ Choose sustainably</h3>
+      <p class="hint">${material.prompt}</p>
+    </div>
+    <div id="material-cards" class="card-row"></div>
+    <p id="material-feedback" aria-live="polite"></p>
+  `;
+
+  const cardsEl = container.querySelector('#material-cards');
+
+  material.options.forEach((opt, i) => {
+    const card = document.createElement('button');
+    card.className = 'material-card';
+    card.innerHTML = `<div class="material-label">${opt.label}</div>`;
+    card.addEventListener('click', () => choose(i, card));
+    cardsEl.appendChild(card);
+  });
+
+  function choose(i, card) {
+    const chosen = material.options[i];
+    Array.from(cardsEl.children).forEach(c => c.disabled = true);
+    card.classList.add('chosen');
+
+    const best = Math.max(...material.options.map(o => o.rank));
+    const alternatives = material.options.filter(o => o.rank > chosen.rank)
+      .sort((a, b) => b.rank - a.rank)
+      .map(o => o.label).join(', ');
+
+    const meterPct = Math.round((chosen.rank / 3) * 100);
+    const tone = chosen.rank === best ? '🌟 Great choice — this is the most sustainable option here.' : '🌱 Good to know for next time:';
+
+    container.querySelector('#material-feedback').innerHTML = `
+      <div class="eco-meter"><div class="eco-fill" style="width:${meterPct}%"></div></div>
+      <p>${tone}</p>
+      <p>${chosen.fact}</p>
+      <p class="source">Source: ${chosen.source}</p>
+      ${alternatives ? `<p class="hint">More sustainable alternative(s): ${alternatives}</p>` : ''}
+      <div class="btn-row"><button class="primary" id="material-next">Continue ▶</button></div>
+    `;
+    container.querySelector('#material-next').addEventListener('click', () => {
+      onDone({ rank: chosen.rank, best: chosen.rank === best, points: chosen.rank * 10 });
+    });
+  }
+}
+</script>
+<script>
+const STATS_KEY = 'rootwords_stats_v1';
+
+function defaultStats() {
+  return {
+    totalScore: 0,
+    levelsCompleted: 0,
+    sketchScores: [],
+    geometryCorrect: 0,
+    geometryTotal: 0,
+    spellingCorrect: 0,
+    spellingTotal: 0,
+    materialPointsSum: 0,
+    materialBestCount: 0,
+    materialRounds: 0
+  };
+}
+
+function loadStats() {
+  try {
+    const raw = localStorage.getItem(STATS_KEY);
+    return raw ? Object.assign(defaultStats(), JSON.parse(raw)) : defaultStats();
+  } catch (e) {
+    return defaultStats();
+  }
+}
+
+function saveStats(stats) {
+  localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+}
+
+function resetStats() {
+  localStorage.removeItem(STATS_KEY);
+  return defaultStats();
+}
+
+function computeBadges(stats) {
+  const badges = [];
+  const sketchAvg = stats.sketchScores.length
+    ? stats.sketchScores.reduce((a, b) => a + b, 0) / stats.sketchScores.length : 0;
+  const geomAcc = stats.geometryTotal ? (stats.geometryCorrect / stats.geometryTotal) * 100 : 0;
+  const spellAcc = stats.spellingTotal ? (stats.spellingCorrect / stats.spellingTotal) * 100 : 0;
+  const materialAvg = stats.materialRounds ? stats.materialPointsSum / stats.materialRounds : 0;
+
+  if (sketchAvg >= 70) badges.push({ icon: '🎨', name: 'Nature Sketcher' });
+  if (geomAcc >= 90 && stats.geometryTotal > 0) badges.push({ icon: '📐', name: 'Geometry Whiz' });
+  if (spellAcc >= 80 && stats.spellingTotal > 0) badges.push({ icon: '🔤', name: 'Word Wizard' });
+  if (materialAvg >= 25 && stats.materialRounds > 0) badges.push({ icon: '♻️', name: 'Sustainability Champion' });
+  if (stats.levelsCompleted >= LEVELS.length) badges.push({ icon: '🌍', name: 'Rootwords Graduate' });
+
+  return { badges, sketchAvg, geomAcc, spellAcc, materialAvg };
+}
+</script>
+<script>
+let stats = loadStats();
+let currentLevelIndex = 0;
+let levelScore = 0;
+
+const stageContainer = document.getElementById('stage-container');
+const modal = document.getElementById('modal');
+
+function switchTab(name) {
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === `tab-${name}`));
+  if (name === 'stats') renderStats();
+}
+
+document.querySelectorAll('.nav-tab').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+function updateHud() {
+  const level = LEVELS[currentLevelIndex];
+  document.getElementById('hud-level').textContent = `${currentLevelIndex + 1} / ${LEVELS.length}`;
+  document.getElementById('hud-item').textContent = `${level.emoji} ${level.name}`;
+  document.getElementById('hud-level-score').textContent = levelScore;
+  document.getElementById('hud-total-score').textContent = stats.totalScore;
+}
+
+function showModal({ title, place, fact, source, extraHtml, buttonLabel, onGo }) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-place').textContent = place || '';
+  document.getElementById('modal-fact').textContent = fact || '';
+  document.getElementById('modal-source').textContent = source ? `Source: ${source}` : '';
+  document.getElementById('modal-extra').innerHTML = extraHtml || '';
+  const goBtn = document.getElementById('modal-go');
+  goBtn.textContent = buttonLabel || 'Start';
+  modal.classList.remove('hidden');
+  const handler = () => {
+    modal.classList.add('hidden');
+    goBtn.removeEventListener('click', handler);
+    onGo();
+  };
+  goBtn.addEventListener('click', handler);
+}
+
+function appendContinue(afterLabel, onContinue) {
+  const row = document.createElement('div');
+  row.className = 'btn-row stage-continue';
+  row.innerHTML = `<button class="primary">${afterLabel}</button>`;
+  stageContainer.appendChild(row);
+  row.querySelector('button').addEventListener('click', () => {
+    row.remove();
+    onContinue();
+  });
+}
+
+function startLevel(index) {
+  currentLevelIndex = index;
+  levelScore = 0;
+  const level = LEVELS[index];
+  updateHud();
+  showModal({
+    title: `${level.emoji} Level ${index + 1}: ${level.name}`,
+    place: level.place,
+    fact: level.intro.fact,
+    source: level.intro.source,
+    buttonLabel: 'Start this level',
+    onGo: () => runSketchStage(level)
+  });
+}
+
+function runSketchStage(level) {
+  updateHud();
+  createSketchStage(stageContainer, level.sketchGuide, (score) => {
+    stats.sketchScores.push(score);
+    appendContinue('Continue to Geometry ▶', () => runGeometryStage(level));
+  });
+}
+
+function runGeometryStage(level) {
+  createGeometryStage(stageContainer, level.geometry, (result) => {
+    stats.geometryCorrect += result.firstTry;
+    stats.geometryTotal += result.total;
+    levelScore += result.firstTry * 10;
+    updateHud();
+    appendContinue('Continue to Spelling ▶', () => runSpellingStage(level));
+  });
+}
+
+function runSpellingStage(level) {
+  createSpellingStage(stageContainer, level.words, (result) => {
+    stats.spellingCorrect += result.firstTry;
+    stats.spellingTotal += result.total;
+    levelScore += result.score;
+    updateHud();
+    appendContinue('Continue to Sustainable Choices ▶', () => runMaterialsStage(level));
+  });
+}
+
+function runMaterialsStage(level) {
+  createMaterialsStage(stageContainer, level.material, (result) => {
+    stats.materialPointsSum += result.points;
+    stats.materialRounds += 1;
+    if (result.best) stats.materialBestCount += 1;
+    levelScore += result.points;
+    updateHud();
+    appendContinue('Finish level ▶', () => finishLevel(level));
+  });
+}
+
+function finishLevel(level) {
+  stats.totalScore += levelScore;
+  stats.levelsCompleted += 1;
+  saveStats(stats);
+  updateHud();
+
+  const isLast = currentLevelIndex === LEVELS.length - 1;
+  showModal({
+    title: `${level.emoji} Level complete!`,
+    place: `You scored ${levelScore} points on ${level.name}.`,
+    fact: isLast
+      ? "You've finished every level in Rootwords — nice work sketching, doing geometry, spelling, and choosing sustainably!"
+      : 'Ready for the next pattern in nature?',
+    source: '',
+    buttonLabel: isLast ? 'See my stats' : 'Next level ▶',
+    onGo: () => {
+      if (isLast) {
+        switchTab('stats');
+      } else {
+        startLevel(currentLevelIndex + 1);
+      }
+    }
+  });
+}
+
+function renderStats() {
+  const { badges, sketchAvg, geomAcc, spellAcc, materialAvg } = computeBadges(stats);
+  const grid = document.getElementById('stats-grid');
+  grid.innerHTML = `
+    <div class="stat-card"><div class="stat-num">${stats.totalScore}</div><div class="stat-label">Total score</div></div>
+    <div class="stat-card"><div class="stat-num">${stats.levelsCompleted} / ${LEVELS.length}</div><div class="stat-label">Levels completed</div></div>
+    <div class="stat-card"><div class="stat-num">${Math.round(sketchAvg)}%</div><div class="stat-label">Avg. sketch coverage</div></div>
+    <div class="stat-card"><div class="stat-num">${Math.round(geomAcc)}%</div><div class="stat-label">Geometry accuracy</div></div>
+    <div class="stat-card"><div class="stat-num">${Math.round(spellAcc)}%</div><div class="stat-label">Spelling accuracy (first try)</div></div>
+    <div class="stat-card"><div class="stat-num">${materialAvg.toFixed(1)} / 30</div><div class="stat-label">Avg. sustainability points</div></div>
+  `;
+  const badgesGrid = document.getElementById('badges-grid');
+  badgesGrid.innerHTML = badges.length
+    ? badges.map(b => `<div class="badge-card"><div class="badge-icon">${b.icon}</div><div>${b.name}</div></div>`).join('')
+    : '<p class="hint">No badges yet — play a few levels to earn some!</p>';
+}
+
+document.getElementById('btn-reset-stats').addEventListener('click', () => {
+  stats = resetStats();
+  renderStats();
+});
+
+startLevel(0);
+</script>
+</body>
+</html>
+```
+
+Save this as `index.html` in your `GiggleByte-Hub/Rootwords` repo (via GitHub's "Create new file" button) and it'll work as a complete, standalone game.
