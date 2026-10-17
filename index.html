@@ -177,6 +177,30 @@ a.btn-link.primary { background: var(--green); color: #fff; border-color: var(--
 .eco-meter { height: 10px; background: #eee; border-radius: 6px; overflow: hidden; margin: 0.5rem 0; }
 .eco-fill { height: 100%; background: linear-gradient(90deg, var(--amber), var(--green)); }
 
+.chance-row { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.75rem; }
+
+.chance-card {
+  width: 64px; height: 84px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(160deg, var(--green), var(--green-dark));
+  border: 2px solid var(--green-dark);
+  border-radius: 10px;
+  font-size: 1.8rem;
+  transition: transform 0.15s ease;
+}
+.chance-card:hover:not(:disabled) { transform: translateY(-3px); }
+.chance-card:disabled { cursor: default; }
+.chance-card.revealed {
+  background: var(--cream);
+  color: var(--ink);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.chance-card.revealed.picked { border-color: var(--amber); border-width: 3px; background: #fff6da; }
+.chance-points { font-size: 1.15rem; }
+
+.chance-result { font-weight: 600; }
+
 #modal {
   position: fixed; inset: 0;
   background: rgba(20, 30, 15, 0.55);
@@ -281,12 +305,13 @@ a.btn-link.primary { background: var(--green); color: #fff; border-color: var(--
   <section id="tab-about" class="tab-panel">
     <div class="panel-block">
       <h2>How to play</h2>
-      <p>Each level is built around one pattern found in nature. You'll go through four short stages:</p>
+      <p>Each level is built around one pattern found in nature. You'll go through five short stages:</p>
       <ol>
         <li><b>🎨 Sketch</b> — trace the pattern's outline on a canvas.</li>
         <li><b>📐 Geometry</b> — answer two math/geometry questions about the pattern you just traced.</li>
         <li><b>🔤 Spell</b> — drag letter tiles (Scrabble-style, with point values) to spell related vocabulary.</li>
         <li><b>♻️ Choose sustainably</b> — pick the more sustainable material for an everyday item, and see the real trade-offs.</li>
+        <li><b>🎲 Nature's Luck</b> — pick one of six face-down cards for a bonus; all six flip over afterward so you can see the real odds, framed around a genuine chance event in nature (seed survival, pollination, ocean dispersal, or prey capture).</li>
       </ol>
       <h2>Sources &amp; honesty notes</h2>
       <ul class="sources-list">
@@ -298,8 +323,12 @@ a.btn-link.primary { background: var(--green); color: #fff; border-color: var(--
         <li>Beeswax wrap vs. plastic wrap — UC ANR Preservation Notes; The Green Collective.</li>
         <li>Stainless-steel vs. single-use plastic bottles — myequa.com; icobottle.com.</li>
         <li>Hemp vs. cotton vs. polyester water use &amp; biodegradability — hemp.com; ecothes.com; Slate.</li>
+        <li>Oak acorn/seedling overwintering survival — USDA Forest Service (research.fs.usda.gov).</li>
+        <li>Honey bee flower-visiting behavior — pollinatorparadise.com.</li>
+        <li>Marine larval mortality &amp; dispersal research summaries.</li>
+        <li>Orb-weaver prey interception &amp; capture-efficiency research.</li>
       </ul>
-      <p class="hint"><b>Honesty note:</b> the sketch shapes are stylized teaching guides, not botanically exact drawings. Material "sustainability scores" are simplified teaching ranks based on the sources above, not precise lifecycle-assessment numbers — real sustainability trade-offs depend on how often something is reused, how it's disposed of, and local conditions.</p>
+      <p class="hint"><b>Honesty note:</b> the sketch shapes are stylized teaching guides, not botanically exact drawings. Material "sustainability scores" are simplified teaching ranks based on the sources above, not precise lifecycle-assessment numbers — real sustainability trade-offs depend on how often something is reused, how it's disposed of, and local conditions. The <b>Nature's Luck</b> odds (how many of the 6 cards hide a bonus) are simplified, playable numbers loosely inspired by the cited research, not the literal cited percentages — real survival/capture odds vary enormously by species and conditions, which is itself the point: nature really is this unpredictable.</p>
       <h2>Accessibility</h2>
       <ul class="sources-list">
         <li>Every color cue is paired with an icon, label, or pattern (never color alone).</li>
@@ -362,6 +391,19 @@ const LEVELS = [
         { label: 'Paper bag (used once)', rank: 2, fact: 'Paper biodegrades in weeks to months, but printing a fresh paper bag for every trip still costs trees, water, and energy — reusing something always beats a single-use item, even a "biodegradable" one.', source: 'General lifecycle principle: reuse > recycle > single-use' },
         { label: 'Reusable cotton tote (used 100+ times)', rank: 3, fact: 'A sturdy tote costs more resources to make than one plastic bag — but you use it hundreds of times instead of throwing it away once, so its footprint per trip ends up far lower.', source: 'General lifecycle principle: reuse > recycle > single-use' }
       ]
+    },
+    chance: {
+      title: "Seed's Luck", icon: '🌰',
+      deck: [
+        { points: 0, label: 'No luck — this acorn dried out before it could root.' },
+        { points: 0, label: 'No luck — a hungry squirrel found it first.' },
+        { points: 0, label: 'No luck — not enough sunlight reached it.' },
+        { points: 10, label: 'Took root! A tiny seedling pokes through the soil.' },
+        { points: 10, label: 'Took root! It survives its first winter.' },
+        { points: 20, label: 'Perfect spot — full sun, soft soil. It thrives!' }
+      ],
+      fact: 'A classic Pennsylvania study found acorns left on the surface had only about a 20% chance of surviving winter (most dried out, rotted, or were eaten) — but acorns that got buried jumped to over 80% survival. Which seed makes it is a real mix of luck and landing in the right spot.',
+      source: 'Oak acorn/seedling overwintering survival study (USDA Forest Service — research.fs.usda.gov)'
     }
   },
   {
@@ -398,6 +440,19 @@ const LEVELS = [
         { label: 'Aluminum foil', rank: 2, fact: 'Foil is technically recyclable, but making new aluminum is very energy-intensive, and food-soiled foil usually cannot actually be recycled.', source: 'General packaging lifecycle principle' },
         { label: 'Beeswax wrap (reused ~1 year, then composted)', rank: 3, fact: 'A beeswax wrap — cotton cloth coated in beeswax, resin, and oil — can be washed and reused for about a year, then composted safely, replacing hundreds of sheets of single-use wrap.', source: 'UC ANR Preservation Notes; The Green Collective' }
       ]
+    },
+    chance: {
+      title: "Pollinator's Luck", icon: '🐝',
+      deck: [
+        { points: 0, label: 'The bee buzzes right past this flower.' },
+        { points: 0, label: 'The bee lands, but moves on without pollinating.' },
+        { points: 0, label: 'The bee visits a different flower instead.' },
+        { points: 10, label: 'Pollinated! Pollen sticks and transfers.' },
+        { points: 10, label: 'Pollinated! A second bee finishes the job.' },
+        { points: 20, label: 'A perfect visit — maximum pollen transfer!' }
+      ],
+      fact: 'Studies tracking honey bees found they leave a cluster of flowers (moving on to the next plant) roughly 55–57% of the time after visiting just one flower — no matter how many flowers they already visited. Each visit behaves almost like an independent coin flip.',
+      source: 'Honey bee flower-visiting behavior study (pollinatorparadise.com)'
     }
   },
   {
@@ -434,6 +489,19 @@ const LEVELS = [
         { label: 'A reusable plastic bottle', rank: 2, fact: 'Reusing a plastic bottle is far better than single-use, but plastic degrades a little each wash cycle and eventually still becomes waste.', source: 'General reuse lifecycle principle' },
         { label: 'A reusable stainless-steel bottle', rank: 3, fact: 'One steel bottle, used daily, pays back its higher manufacturing footprint in about a month — and over a year it replaces roughly 730 single-use bottles while staying 100% and endlessly recyclable.', source: 'Bottle lifecycle-analysis summaries (myequa.com; icobottle.com)' }
       ]
+    },
+    chance: {
+      title: "Current's Luck", icon: '🌊',
+      deck: [
+        { points: 0, label: 'Swept into open water — too far from any reef to settle.' },
+        { points: 0, label: 'Eaten by a passing fish before it could settle.' },
+        { points: 0, label: 'Carried the wrong way by a shifting current.' },
+        { points: 0, label: 'Ran out of energy before finding a place to settle.' },
+        { points: 10, label: 'Found a reef! A rare chance to settle and grow.' },
+        { points: 20, label: 'Carried on a perfect current, straight to a thriving reef.' }
+      ],
+      fact: 'Ocean currents carry huge numbers of tiny marine larvae, but survival is brutal — commonly cited estimates put overall larval survival at under 1%, and measured daily mortality rates range from about 3% to 46% depending on the species. That is exactly why sea creatures release so many offspring at once: the odds for any single one are long.',
+      source: 'Marine larval mortality & dispersal research summaries'
     }
   },
   {
@@ -470,6 +538,19 @@ const LEVELS = [
         { label: 'Conventional cotton', rank: 2, fact: 'Cotton is natural and biodegradable, but growing one kilogram of cotton fiber can take around 10,000 liters of irrigated water.', source: 'Hemp vs. cotton water-use comparisons (Slate; hemp.com)' },
         { label: 'Hemp', rank: 3, fact: 'Hemp needs roughly half the water cotton does, is usually rain-fed rather than irrigated, and pure hemp fabric breaks down in weeks to months in compost, returning nutrients to the soil.', source: 'Hemp environmental lifecycle comparisons (hemp.com; ecothes.com)' }
       ]
+    },
+    chance: {
+      title: "Web's Luck", icon: '🕸',
+      deck: [
+        { points: 0, label: 'The insect swerves away just in time — it escapes.' },
+        { points: 0, label: 'It bounces off a strand and flies free.' },
+        { points: 0, label: 'It never comes near the web at all.' },
+        { points: 10, label: 'Caught! The sticky spiral holds it.' },
+        { points: 10, label: 'Caught! The spider feels the vibration and moves in.' },
+        { points: 20, label: "A perfect strike — right in the web's strongest zone." }
+      ],
+      fact: 'Even a well-built web is no guarantee: researchers studying orb-weavers found that most insects flying toward a web actually escape before the spider can attack, and capture odds drop to nearly zero for fast-flying insects. Interception, not strength, is the spider’s biggest challenge.',
+      source: 'Orb-weaver prey interception & capture-efficiency research'
     }
   }
 ];
@@ -907,6 +988,65 @@ function createMaterialsStage(container, material, onDone) {
 }
 </script>
 <script>
+function createChanceStage(container, chance, onDone) {
+  const bonusCount = chance.deck.filter(d => d.points > 0).length;
+  const oddsPct = Math.round((bonusCount / chance.deck.length) * 100);
+
+  const order = chance.deck.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+
+  container.innerHTML = `
+    <div class="stage-head">
+      <h3>🎲 ${chance.title}</h3>
+      <p class="hint">Pick one face-down card. ${bonusCount} of these 6 (${oddsPct}%) hide a bonus — just like in nature, you can't know which one in advance.</p>
+    </div>
+    <div id="chance-cards" class="card-row chance-row"></div>
+    <p id="chance-feedback" aria-live="polite"></p>
+  `;
+
+  const cardsEl = container.querySelector('#chance-cards');
+  let picked = false;
+
+  order.forEach((deckIndex) => {
+    const btn = document.createElement('button');
+    btn.className = 'chance-card';
+    btn.innerHTML = `<span class="chance-face">${chance.icon}</span>`;
+    btn.addEventListener('click', () => {
+      if (picked) return;
+      picked = true;
+      reveal(deckIndex, btn);
+    });
+    cardsEl.appendChild(btn);
+  });
+
+  function reveal(pickedDeckIndex, pickedBtn) {
+    Array.from(cardsEl.children).forEach((btn, slot) => {
+      const entry = chance.deck[order[slot]];
+      btn.disabled = true;
+      btn.classList.add('revealed');
+      if (btn === pickedBtn) btn.classList.add('picked');
+      btn.innerHTML = `<span class="chance-points">${entry.points > 0 ? '+' + entry.points : '—'}</span>`;
+    });
+
+    const outcome = chance.deck[pickedDeckIndex];
+    const isJackpot = outcome.points === Math.max(...chance.deck.map(d => d.points));
+
+    container.querySelector('#chance-feedback').innerHTML = `
+      <p class="chance-result">${outcome.points > 0 ? '🌟' : '🍂'} ${outcome.label} ${outcome.points > 0 ? `<b>+${outcome.points} bonus points</b>` : '<span class="hint">(no bonus this time — no penalty either)</span>'}</p>
+      <p>${chance.fact}</p>
+      <p class="source">Source: ${chance.source}</p>
+      <div class="btn-row"><button class="primary" id="chance-next">Finish level ▶</button></div>
+    `;
+    container.querySelector('#chance-next').addEventListener('click', () => {
+      onDone({ points: outcome.points, jackpot: isJackpot });
+    });
+  }
+}
+</script>
+<script>
 const STATS_KEY = 'rootwords_stats_v1';
 
 function defaultStats() {
@@ -920,7 +1060,10 @@ function defaultStats() {
     spellingTotal: 0,
     materialPointsSum: 0,
     materialBestCount: 0,
-    materialRounds: 0
+    materialRounds: 0,
+    chanceBonusSum: 0,
+    chanceRounds: 0,
+    chanceJackpots: 0
   };
 }
 
@@ -954,6 +1097,7 @@ function computeBadges(stats) {
   if (geomAcc >= 90 && stats.geometryTotal > 0) badges.push({ icon: '📐', name: 'Geometry Whiz' });
   if (spellAcc >= 80 && stats.spellingTotal > 0) badges.push({ icon: '🔤', name: 'Word Wizard' });
   if (materialAvg >= 25 && stats.materialRounds > 0) badges.push({ icon: '♻️', name: 'Sustainability Champion' });
+  if (stats.chanceJackpots >= 1) badges.push({ icon: '🍀', name: 'Lucky Sprout' });
   if (stats.levelsCompleted >= LEVELS.length) badges.push({ icon: '🌍', name: 'Rootwords Graduate' });
 
   return { badges, sketchAvg, geomAcc, spellAcc, materialAvg };
@@ -1063,7 +1207,18 @@ function runMaterialsStage(level) {
     if (result.best) stats.materialBestCount += 1;
     levelScore += result.points;
     updateHud();
-    appendContinue('Finish level ▶', () => finishLevel(level));
+    appendContinue("Continue to Nature's Luck ▶", () => runChanceStage(level));
+  });
+}
+
+function runChanceStage(level) {
+  createChanceStage(stageContainer, level.chance, (result) => {
+    stats.chanceBonusSum += result.points;
+    stats.chanceRounds += 1;
+    if (result.jackpot) stats.chanceJackpots += 1;
+    levelScore += result.points;
+    updateHud();
+    finishLevel(level);
   });
 }
 
@@ -1102,6 +1257,7 @@ function renderStats() {
     <div class="stat-card"><div class="stat-num">${Math.round(geomAcc)}%</div><div class="stat-label">Geometry accuracy</div></div>
     <div class="stat-card"><div class="stat-num">${Math.round(spellAcc)}%</div><div class="stat-label">Spelling accuracy (first try)</div></div>
     <div class="stat-card"><div class="stat-num">${materialAvg.toFixed(1)} / 30</div><div class="stat-label">Avg. sustainability points</div></div>
+    <div class="stat-card"><div class="stat-num">${stats.chanceBonusSum}</div><div class="stat-label">Bonus points from luck</div></div>
   `;
   const badgesGrid = document.getElementById('badges-grid');
   badgesGrid.innerHTML = badges.length
