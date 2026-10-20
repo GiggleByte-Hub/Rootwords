@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rootwords-v3';
+const CACHE_NAME = 'rootwords-v5';
 const ASSETS = [
   './',
   './index.html',
@@ -6,7 +6,8 @@ const ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './icon-512-maskable.png',
-  './apple-touch-icon.png'
+  './apple-touch-icon.png',
+  './play-billing.js'
 ];
 
 self.addEventListener('install', (event) => {

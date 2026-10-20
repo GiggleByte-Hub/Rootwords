@@ -238,6 +238,16 @@ a.btn-link.primary { background: var(--green); color: #fff; border-color: var(--
 @media (max-width: 560px) {
   #topnav { flex-direction: column; align-items: flex-start; }
 }
+/* Inside the Google Play app, Ko-fi links are hidden (Play payments policy); donations go through Google Play Billing instead. */
+.play-app:not(.billing) .donate-only, .play-app .web-only { display: none !important; }
+.play-only { display: none; }
+.play-app.billing .play-only { display: block; }
+button.tier-card { font: inherit; color: inherit; display: flex; flex-direction: column; align-items: center; gap: .2rem; border: 1px solid transparent; }
+button.tier-card:hover { border-color: var(--green); }
+.play-gate { background: var(--green-light); border: 1px solid var(--green); border-radius: 12px; padding: .8rem 1rem; margin: .5rem 0; }
+.play-gate[hidden] { display: none; }
+.gate-row { display: flex; gap: .5rem; flex-wrap: wrap; }
+.gate-row input { font: inherit; width: 6rem; padding: .5rem; border-radius: 10px; border: 1px solid var(--border); }
 </style>
 </head>
 <body>
@@ -246,7 +256,7 @@ a.btn-link.primary { background: var(--green); color: #fff; border-color: var(--
   <nav>
     <button class="nav-tab active" data-tab="play">Play</button>
     <button class="nav-tab" data-tab="stats">Stats</button>
-    <button class="nav-tab" data-tab="donate">Donate</button>
+    <button class="nav-tab donate-only" data-tab="donate">Donate</button>
     <button class="nav-tab" data-tab="about">About</button>
   </nav>
 </header>
@@ -274,30 +284,42 @@ a.btn-link.primary { background: var(--green); color: #fff; border-color: var(--
     </div>
   </section>
 
-  <section id="tab-donate" class="tab-panel">
+  <section id="tab-donate" class="tab-panel donate-only">
     <div class="panel-block donate-block">
       <h2>Support Rootwords 🌱</h2>
       <p>Rootwords is a <b>free, open-source</b> game, built in the open the same way <a href="https://woogles.io" target="_blank" rel="noopener">Woogles.io</a> runs its word-game platform: volunteer-made, donation-funded, and kept free for every learner. The game itself runs entirely in your browser — no gameplay server to pay for — but hosting the site, maintaining it, and building new levels all take real time and resources.</p>
       <p>If Rootwords helped you (or a classroom, or a kid you know) learn a little geometry, a little spelling, and a little more care for the planet, consider chipping in:</p>
-      <div class="donate-tiers">
-        <div class="tier-card">
-          <div class="tier-amount">$3</div>
-          <div class="tier-name">Plant a seed</div>
+      <div class="web-only">
+        <div class="donate-tiers">
+          <div class="tier-card">
+            <div class="tier-amount">$3</div>
+            <div class="tier-name">Plant a seed</div>
+          </div>
+          <div class="tier-card">
+            <div class="tier-amount">$10</div>
+            <div class="tier-name">Water the roots</div>
+          </div>
+          <div class="tier-card">
+            <div class="tier-amount">$25</div>
+            <div class="tier-name">Grow the forest</div>
+          </div>
         </div>
-        <div class="tier-card">
-          <div class="tier-amount">$10</div>
-          <div class="tier-name">Water the roots</div>
+        <div class="btn-row">
+          <a class="primary btn-link" href="https://ko-fi.com/gigglebyte1010" target="_blank" rel="noopener" id="donate-onetime">💚 One-time donation</a>
+          <a class="btn-link" href="https://ko-fi.com/gigglebyte1010/tiers" target="_blank" rel="noopener" id="donate-monthly">🔁 Become a monthly supporter</a>
         </div>
-        <div class="tier-card">
-          <div class="tier-amount">$25</div>
-          <div class="tier-name">Grow the forest</div>
-        </div>
+        <p class="hint">Donations are processed securely by Ko-fi — you'll leave this page briefly to complete payment.</p>
       </div>
-      <div class="btn-row">
-        <a class="primary btn-link" href="https://ko-fi.com/gigglebyte1010" target="_blank" rel="noopener" id="donate-onetime">💚 One-time donation</a>
-        <a class="btn-link" href="https://ko-fi.com/gigglebyte1010/tiers" target="_blank" rel="noopener" id="donate-monthly">🔁 Become a monthly supporter</a>
+      <div class="play-only">
+        <div class="donate-tiers">
+          <button class="tier-card play-tier" data-sku="donate_small"><span class="tier-amount price">$2.99</span><span class="tier-name">Plant a seed</span></button>
+          <button class="tier-card play-tier" data-sku="donate_medium"><span class="tier-amount price">$9.99</span><span class="tier-name">Water the roots</span></button>
+          <button class="tier-card play-tier" data-sku="donate_large"><span class="tier-amount price">$24.99</span><span class="tier-name">Grow the forest</span></button>
+        </div>
+        <div id="play-gate" class="play-gate" hidden></div>
+        <p id="play-donate-status" class="hint" aria-live="polite"></p>
+        <p class="hint">Donations are one-time and processed securely by Google Play. They are optional and unlock nothing.</p>
       </div>
-      <p class="hint">Donations are processed securely by Ko-fi — you'll leave this page briefly to complete payment.</p>
       <p class="hint"><a href="https://github.com/GiggleByte-Hub/Rootwords" target="_blank" rel="noopener" id="donate-github">⭐ View the source on GitHub</a> — the code is free for anyone to read, fork, or improve.</p>
     </div>
   </section>
@@ -329,6 +351,7 @@ a.btn-link.primary { background: var(--green); color: #fff; border-color: var(--
         <li>Orb-weaver prey interception &amp; capture-efficiency research.</li>
       </ul>
       <p class="hint"><b>Honesty note:</b> the sketch shapes are stylized teaching guides, not botanically exact drawings. Material "sustainability scores" are simplified teaching ranks based on the sources above, not precise lifecycle-assessment numbers — real sustainability trade-offs depend on how often something is reused, how it's disposed of, and local conditions. The <b>Nature's Luck</b> odds (how many of the 6 cards hide a bonus) are simplified, playable numbers loosely inspired by the cited research, not the literal cited percentages — real survival/capture odds vary enormously by species and conditions, which is itself the point: nature really is this unpredictable.</p>
+      <p class="hint"><a href="privacy.html">Privacy policy</a> — this game collects no personal information.</p>
       <h2>Accessibility</h2>
       <ul class="sources-list">
         <li>Every color cue is paired with an icon, label, or pattern (never color alone).</li>
@@ -1272,11 +1295,20 @@ document.getElementById('btn-reset-stats').addEventListener('click', () => {
 
 startLevel(0);
 
+// The Google Play app opens the site from "android-app://" (or with ?app=play).
+// Remember that for the session so the Donate tab stays hidden there.
+(() => {
+  let playApp = document.referrer.startsWith('android-app://') || /[?&]app=play\b/.test(location.search);
+  try { if (playApp) sessionStorage.setItem('play-app', '1'); else playApp = sessionStorage.getItem('play-app') === '1'; } catch (e) {}
+  if (playApp) document.body.classList.add('play-app');
+})();
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('service-worker.js').catch(() => {});
   });
 }
 </script>
+<script src="play-billing.js"></script>
 </body>
 </html>
